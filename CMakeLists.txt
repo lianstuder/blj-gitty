@@ -5,8 +5,6 @@ project(
   LANGUAGES CXX  
 )
 
-add_subdirectory(src)
-
 include(cmake/CPM.cmake)
 
 CPMAddPackage(
@@ -16,7 +14,9 @@ CPMAddPackage(
 )
 
 CPMAddPackage(
-  NAME git2
+  NAME libgit2
   GITHUB_REPOSITORY libgit2/libgit2
   VERSION 1.1.0
 )
+
+add_subdirectory(src)
