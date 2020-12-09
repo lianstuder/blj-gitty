@@ -1,10 +1,13 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <git2.h>
 #include <iostream>
 
 int main(void)
 {
     using namespace ftxui;
+
+    git_libgit2_init();
 
     // Define the document
     Element document =
