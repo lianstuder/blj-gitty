@@ -38,30 +38,40 @@ public:
     status::status_type status;
 };
 
-class MyComponent : public Component
+class FileTracker : public Component
 {
 private:
-    CheckBox box_1_;
-    CheckBox box_2_;
-    CheckBox box_3_;
+    vector<CheckBox> fileCheckboxes;
     Container container_ = Container::Vertical();
 
 public:
-    MyComponent()
+    FileTracker(vector<File> files)
     {
         Add(&container_);
-        container_.Add(&box_1_);
-        container_.Add(&box_2_);
-        container_.Add(&box_3_);
-        box_1_.label = L"Build examples";
-        box_2_.label = L"Build tests";
-        box_3_.label = L"Use WebAssembly";
-        box_3_.state = true;
+        for (CheckBox &cb : fileCheckboxes)
+        {
+            for (File &file : files)
+            {
+                container_.Add(&cb);
+                cb.label = file.path;
+                cb.state = false;
+            }
+        }
     }
-}
 
-vector<File>
-    stagedFiles;
+    Element Render() override
+    {
+        // Override render method
+    }
+};
+
+/* TODO:
+    - Override FileTracker Render method
+    - Display staged files container as seperate Component (like FileTracker)
+    - Switch to InteractiveScreen (debug)
+ */
+
+vector<File> stagedFiles;
 vector<File> unstagedFiles;
 
 string cwd;
@@ -113,7 +123,7 @@ int main()
 
     auto render = [&]() {
         vector<Element> elements;
-        for (auto &file : stagedFiles)
+        for (File &file : stagedFiles)
             elements.push_back(renderFile(file));
         return vbox({
             window(text(L" Project "), vbox(move(elements))),
@@ -123,11 +133,15 @@ int main()
     auto document = render();
     document = document | size(WIDTH, LESS_THAN, 80);
 
-    auto screen = ScreenInteractive::Create(Dimension::Full(), Dimension::Fit(document));
+    /*     auto screen = ScreenInteractive::Create(Dimension::Full(), Dimension::Fit(document)); */
+    auto screen = ScreenInteractive::TerminalOutput();
+
+    FileTracker ft(stagedFiles);
 
     Render(screen, document);
 
-    cout << screen.ToString() << endl;
+    screen.Loop(&ft);
+    /*    cout << screen.ToString() << endl; */
 
     return EXIT_SUCCESS;
 }
