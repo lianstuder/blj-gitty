@@ -67,8 +67,10 @@ public:
 
 /* TODO:
     - Override FileTracker Render method
-    - Display staged files container as seperate Component (like FileTracker)
+    - Display staged files container as separate Component (like FileTracker)
     - Switch to InteractiveScreen (debug)
+    - Basic refactoring
+    - Split code across multiple files
  */
 
 vector<File> stagedFiles;
