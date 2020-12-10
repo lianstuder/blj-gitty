@@ -35,6 +35,8 @@ samples/
 test/
 ```
 
+You can find more information on building the cppgit2 library in the [README](https://github.com/lianstuder/blj-gitty/blob/master/README.md) of its GitHub Repository.
+
 ## License
 
 This project is licensed under the [MIT License](https://github.com/lianstuder/blj-gitty/blob/master/LICENSE)
