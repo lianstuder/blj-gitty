@@ -1,27 +1,41 @@
-#include <ftxui/dom/elements.hpp>
-#include <ftxui/screen/screen.hpp>
-#include <git2.h>
+#include <cppgit2/annotated_commit.hpp>
+
 #include <iostream>
 
-int main(void)
+#include "ftxui/dom/elements.hpp"
+#include "ftxui/screen/screen.hpp"
+#include "ftxui/screen/string.hpp"
+
+int main()
 {
     using namespace ftxui;
 
-    git_libgit2_init();
+    auto summary = [&] {
+        auto content = vbox({
+            hbox({text(L"- done:   "), text(L"3") | bold}) | color(Color::Green),
+            hbox({text(L"- active: "), text(L"2") | bold}) | color(Color::RedLight),
+            hbox({text(L"- queue:  "), text(L"9") | bold}) | color(Color::Red),
+        });
+        return window(text(L" Summary "), content);
+    };
 
-    // Define the document
-    Element document =
-        hbox({
-            text(L"left") | border,
-            text(L"middle") | border | flex,
-            text(L"right") | border,
+    auto document = //
+        vbox({
+            hbox({
+                summary(),
+                summary(),
+                summary() | flex,
+            }),
+            summary(),
+            summary(),
         });
 
-    auto screen = Screen::Create(
-        Dimension::Full(),       // Width
-        Dimension::Fit(document) // Height
-    );
+    // Limit the size of the document to 80 char.
+    document = document | size(WIDTH, LESS_THAN, 80);
+
+    auto screen = Screen::Create(Dimension::Full(), Dimension::Fit(document));
     Render(screen, document);
+
     std::cout << screen.ToString() << std::endl;
 
     return EXIT_SUCCESS;

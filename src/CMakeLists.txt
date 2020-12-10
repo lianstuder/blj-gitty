@@ -1,11 +1,12 @@
+ADD_EXECUTABLE(${PROJECT_NAME} main.cpp)
 
-add_executable(${PROJECT_NAME} main.cpp)
+FIND_LIBRARY(CPPGIT2_LIBRARY cppgit2 HINTS ${PROJECT_SOURCE_DIR}/build/lib)
 
-target_link_libraries(${PROJECT_NAME}
-  PRIVATE ftxui::screen
-  PRIVATE ftxui::dom
-  PRIVATE ftxui::component
-  libgit2
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}
+    ${CPPGIT2_LIBRARY}
+    ftxui::dom
+    ftxui::screen
+    ftxui::component
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
+SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)

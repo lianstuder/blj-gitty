@@ -1,22 +1,24 @@
-cmake_minimum_required (VERSION 3.11)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 
-project(
-  gitty
-  LANGUAGES CXX  
+include(FetchContent)
+ 
+set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
+  # Specify a GIT TAG here.
+)
+ 
+FetchContent_GetProperties(ftxui)
+if(NOT ftxui_POPULATED)
+  FetchContent_Populate(ftxui)
+  add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
+endif()
+
+PROJECT(
+    gitty
+    LANGUAGES CXX
 )
 
-include(cmake/CPM.cmake)
+INCLUDE_DIRECTORIES("build/include")
 
-CPMAddPackage(
-  NAME ftxui
-  GITHUB_REPOSITORY ArthurSonzogni/ftxui
-  GIT_TAG master
-)
-
-CPMAddPackage(
-  NAME libgit2
-  GITHUB_REPOSITORY libgit2/libgit2
-  VERSION 1.1.0
-)
-
-add_subdirectory(src)
+ADD_SUBDIRECTORY("src")
