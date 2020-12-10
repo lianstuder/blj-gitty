@@ -15,6 +15,9 @@
 #include "ftxui/screen/string.hpp"
 #include "ftxui/component/screen_interactive.hpp"
 #include "ftxui/component/menu.hpp"
+#include "ftxui/component/checkbox.hpp"
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/container.hpp"
 
 // C++ Standard
 #include <chrono>
@@ -35,7 +38,30 @@ public:
     status::status_type status;
 };
 
-vector<File> stagedFiles;
+class MyComponent : public Component
+{
+private:
+    CheckBox box_1_;
+    CheckBox box_2_;
+    CheckBox box_3_;
+    Container container_ = Container::Vertical();
+
+public:
+    MyComponent()
+    {
+        Add(&container_);
+        container_.Add(&box_1_);
+        container_.Add(&box_2_);
+        container_.Add(&box_3_);
+        box_1_.label = L"Build examples";
+        box_2_.label = L"Build tests";
+        box_3_.label = L"Use WebAssembly";
+        box_3_.state = true;
+    }
+}
+
+vector<File>
+    stagedFiles;
 vector<File> unstagedFiles;
 
 string cwd;
