@@ -57,3 +57,4 @@ dkms.conf
 # Custom
 gitty
 build
+~$*
