@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/temp/cppgit2/ext/libgit2/deps/http-parser/http_parser.c
+http_parser.h
+C:/temp/cppgit2/ext/libgit2/deps/http-parser/http_parser.h
+assert.h
+-
+stddef.h
+-
+ctype.h
+-
+stdlib.h
+-
+string.h
+-
+limits.h
+-
+
+C:/temp/cppgit2/ext/libgit2/deps/http-parser/http_parser.h
+sys/types.h
+-
+BaseTsd.h
+-
+sys/inttypes.h
+-
+stdint.h
+-
+

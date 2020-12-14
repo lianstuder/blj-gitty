@@ -1,0 +1,10 @@
+prefix="C:/Program Files (x86)/cppgit2"
+libdir="C:/Program Files (x86)/cppgit2/lib"
+includedir="C:/Program Files (x86)/cppgit2/include"
+
+Name: libgit2
+Description: The git library, take 2
+Version: 1.0.0
+Libs: -L${libdir} -lgit2
+Libs.private: -lrpcrt4 -lcrypt32 -lole32
+Cflags: -I${includedir} 
