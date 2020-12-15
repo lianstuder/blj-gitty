@@ -55,6 +55,5 @@ dkms.conf
 .vscode
 
 # Custom
-gitty
 build
 ~$*

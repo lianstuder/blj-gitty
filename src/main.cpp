@@ -1,7 +1,7 @@
-#ifdef WINDOWS
+#ifdef _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
-#else
+#elif __linux__
 #include <unistd.h>
 #define GetCurrentDir getcwd
 #endif
@@ -60,7 +60,7 @@ int main()
 
     auto screen = ScreenInteractive::Fullscreen();
 
-    Gitty gt;
+    Gitty gt(repo);
     unstagedFiles, ignoredFiles = gt.update(repo);
     Element gitty = gt.Render();
 
@@ -147,8 +147,11 @@ vector<File> Gitty::update(repository repo)
     return unstagedFiles, ignoredFiles;
 }
 
-Gitty::Gitty()
+Gitty::Gitty(repository repo)
 {
+
+    update(repo);
+
     Add(&main_container);
     main_container.Add(&ft);
     main_container.Add(&sf);
