@@ -18,6 +18,7 @@
 #include "ftxui/component/checkbox.hpp"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/container.hpp"
+#include "ftxui/component/input.hpp"
 
 // C++ Standard
 #include <chrono>
@@ -26,44 +27,18 @@
 #include <thread>
 #include <fstream>
 
+// Custom
+#include <gitty/gitty.h>
+
 using namespace cppgit2;
 using namespace ftxui;
 using namespace std;
+using namespace gitty;
 
-class File
-{
-
-public:
-    wstring path;
-    status::status_type status;
-};
-
-class FileTracker : public Component
-{
-private:
-    vector<CheckBox> fileCheckboxes;
-    Container container_ = Container::Vertical();
-
-public:
-    FileTracker(vector<File> files)
-    {
-        Add(&container_);
-        for (CheckBox &cb : fileCheckboxes)
-        {
-            for (File &file : files)
-            {
-                container_.Add(&cb);
-                cb.label = file.path;
-                cb.state = false;
-            }
-        }
-    }
-
-    Element Render() override
-    {
-        // Override render method
-    }
-};
+string cwd;
+vector<File> unstagedFiles;
+vector<File> ignoredFiles;
+vector<File> stagedFiles;
 
 /* TODO:
     - Override FileTracker Render method
@@ -73,14 +48,83 @@ public:
     - Split code across multiple files
  */
 
-vector<File> stagedFiles;
-vector<File> unstagedFiles;
-
-string cwd;
-
-void updateRepoStatus(auto &repo)
+int main()
 {
-    repo.for_each_status([](const string &path, status::status_type status_flags) {
+    char buff[FILENAME_MAX];
+    GetCurrentDir(buff, FILENAME_MAX);
+    string cwd(buff);
+
+    repository repo = repository::init(cwd, false);
+
+    cout << "Current Working Directory " << cwd << endl;
+
+    auto screen = ScreenInteractive::Fullscreen();
+
+    Gitty gt;
+    unstagedFiles, ignoredFiles = gt.update(repo);
+    Element gitty = gt.Render();
+
+    /* thread update([&screen] {
+        for (;;)
+        {
+            using namespace chrono_literals;
+            this_thread::sleep_for(0.05s);
+            screen.PostEvent(Event::Custom);
+        }
+    }); */
+
+    screen.Loop(&gt);
+
+    return EXIT_SUCCESS;
+}
+
+GitCommandLine::GitCommandLine()
+{
+    commandinput.placeholder = L"add .";
+    commandinput.on_enter = [this] {
+        command = commandinput.content;
+    };
+}
+
+Element GitCommandLine::Render()
+{
+    return commandinput.Render();
+}
+
+StagedFiles::StagedFiles()
+{
+    for (File &file : stagedFiles)
+    {
+        auto style = (file.status == status::status_type::index_modified) ? color(Color::Red) : color(Color::GrayDark);
+        elements.push_back(text(file.path) | style);
+    }
+}
+
+Element StagedFiles::Render()
+{
+    return vbox({window(text(L" Project "), vbox(move(elements)))});
+}
+
+FileTracker::FileTracker()
+{
+    Add(&container);
+    for (File &file : unstagedFiles)
+    {
+        CheckBox cb;
+        cb.label = file.path;
+        cb.state = false;
+        container.Add(&cb);
+    }
+}
+
+Element FileTracker::Render()
+{
+    return container.Render();
+}
+
+vector<File> Gitty::update(repository repo)
+{
+    repo.for_each_status([&](const string &path, status::status_type status_flags) {
         if ((status_flags & status::status_type::index_modified) != status::status_type::index_modified)
         {
             if ((status_flags & status::status_type::ignored) != status::status_type::ignored)
@@ -88,62 +132,30 @@ void updateRepoStatus(auto &repo)
                 File mod;
                 mod.path = to_wstring(path);
                 mod.status = status::status_type::index_modified;
-                stagedFiles.push_back(mod);
-                /* cout << "Modified: " << to_string(mod.path) << endl; */
+                unstagedFiles.push_back(mod);
             }
             else
             {
                 File ign;
                 ign.path = to_wstring(path);
-                ign.status = status::status_type::ignored;
-                stagedFiles.push_back(ign);
-                /* cout << "Ignored: " << to_string(ign.path) << endl; */
+                ign.status = status::status_type::index_modified;
+                ignoredFiles.push_back(ign);
             }
         }
     });
+
+    return unstagedFiles, ignoredFiles;
 }
 
-int main()
+Gitty::Gitty()
 {
-    char buff[FILENAME_MAX];
-    GetCurrentDir(buff, FILENAME_MAX);
-    string cwd(buff);
+    Add(&main_container);
+    main_container.Add(&ft);
+    main_container.Add(&sf);
+    main_container.Add(&cli);
+}
 
-    auto repo = repository::init(cwd, false);
-
-    updateRepoStatus(repo);
-
-    cout << "Current Working Directory " << cwd << endl;
-
-    auto renderFile = [&](const File &file) {
-        auto style =
-            (file.status == status::status_type::index_modified)
-                ? color(Color::Red)
-                : color(Color::GrayDark);
-        return text(file.path) | style;
-    };
-
-    auto render = [&]() {
-        vector<Element> elements;
-        for (File &file : stagedFiles)
-            elements.push_back(renderFile(file));
-        return vbox({
-            window(text(L" Project "), vbox(move(elements))),
-        });
-    };
-
-    auto document = render();
-    document = document | size(WIDTH, LESS_THAN, 80);
-
-    /*     auto screen = ScreenInteractive::Create(Dimension::Full(), Dimension::Fit(document)); */
-    auto screen = ScreenInteractive::TerminalOutput();
-
-    FileTracker ft(stagedFiles);
-
-    Render(screen, document);
-
-    screen.Loop(&ft);
-    /*    cout << screen.ToString() << endl; */
-
-    return EXIT_SUCCESS;
+Element Gitty::Render()
+{
+    return main_container.Render();
 }
