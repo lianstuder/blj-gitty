@@ -23,6 +23,7 @@
 // C++ Standard
 #include <iostream>
 #include <string>
+#include <stdexcept>
 
 // Custom
 #include <gitty/gitty.h>
@@ -48,16 +49,22 @@ int main()
     char buff[FILENAME_MAX];
     GetCurrentDir(buff, FILENAME_MAX);
     string cwd(buff);
+    // cout << "Current Working Directory " << cwd << endl;
 
     repository repo = repository::init(cwd, false);
 
-    cout << "Current Working Directory " << cwd << endl;
-
     auto screen = ScreenInteractive::Fullscreen();
 
-    Gitty gt;
+    // Components
+    vector<Component> components;
+    FileTracker filetracker;
+    components.push_back(filetracker);
+
+    GitCommandLine cli;
+    components.push_back(cli);
+
+    Gitty gt(components);
     unstagedFiles, ignoredFiles = gt.update(repo);
-    // unstagedFiles, ignoredFiles, stagedFiles = gt.update(repo);
 
     screen.Loop(&gt);
 
@@ -73,14 +80,12 @@ Element GitCommandLine::Render()
 {
     commandinput.placeholder = L"add .";
     commandinput.on_enter = [this] {
-        system(to_string(commandinput.content).c_str());
         commandinput.content = L"";
     };
     cli.Add(&commandinput);
-    return hbox({
-        text(L"git >>> "),
-        hbox(cli.Render()),
-    });
+    return hbox({text(L"git >>> "),
+                 hbox(cli.Render()),
+                 text(to_wstring(result))});
 }
 
 // StagedFiles Component
@@ -118,12 +123,13 @@ Element FileTracker::Render()
         vbox(container.Render()))});
 }
 
-Gitty::Gitty()
+Gitty::Gitty(vector<Component> components)
 {
     Add(&main_container);
-    main_container.Add(&ft);
-    main_container.Add(&cli);
-    // main_container.Add(&sf);
+    for (Component &cp : components)
+    {
+        main_container.Add(&cp);
+    }
 }
 
 Element Gitty::Render()
@@ -160,6 +166,5 @@ vector<File> Gitty::update(repository repo)
         }
     });
 
-    // return unstagedFiles, ignoredFiles, stagedFiles;
     return unstagedFiles, ignoredFiles;
 }

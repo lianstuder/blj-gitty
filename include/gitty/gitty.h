@@ -47,7 +47,6 @@ namespace gitty
         ~FileTracker() override {}
         FileTracker();
         ftxui::Element Render() override;
-        void reload();
     };
 
     class GitCommandLine : public ftxui::Component
@@ -55,6 +54,7 @@ namespace gitty
     private:
         ftxui::Container cli = ftxui::Container::Horizontal();
         ftxui::Input commandinput;
+        std::string result;
 
     public:
         ~GitCommandLine() override {}
@@ -66,13 +66,10 @@ namespace gitty
     {
     private:
         ftxui::Container main_container = ftxui::Container::Vertical();
-        gitty::FileTracker ft;
-        gitty::GitCommandLine cli;
-        // gitty::StagedFiles sf;
 
     public:
         ~Gitty() override {}
-        Gitty();
+        Gitty(std::vector<ftxui::Component> components);
         ftxui::Element Render() override;
         std::vector<gitty::File> update(cppgit2::repository);
     };
