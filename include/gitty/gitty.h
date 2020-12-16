@@ -19,13 +19,11 @@ namespace gitty
     {
 
     public:
-        std::wstring path;
-        // std::string path;
-        // cppgit2::status::status_type status;
-        status::status_type status;
+        std::string path;
+        cppgit2::status::status_type status;
     };
 
-    class StagedFiles : public ftxui::Component
+    /* class StagedFiles : public ftxui::Component
     {
     private:
         ftxui::Container container = ftxui::Container::Vertical();
@@ -36,13 +34,12 @@ namespace gitty
         ~StagedFiles() override {}
         StagedFiles();
         ftxui::Element Render() override;
-    };
+    }; */
 
     class FileTracker : public ftxui::Component
     {
     private:
         ftxui::Container container = ftxui::Container::Vertical();
-        std::vector<ftxui::Element> elements;
         std::vector<gitty::File> unstagedFiles;
         std::vector<gitty::File> ignoredFiles;
 
@@ -50,6 +47,7 @@ namespace gitty
         ~FileTracker() override {}
         FileTracker();
         ftxui::Element Render() override;
+        void reload();
     };
 
     class GitCommandLine : public ftxui::Component
@@ -68,10 +66,9 @@ namespace gitty
     {
     private:
         ftxui::Container main_container = ftxui::Container::Vertical();
-
         gitty::FileTracker ft;
-        gitty::StagedFiles sf;
         gitty::GitCommandLine cli;
+        // gitty::StagedFiles sf;
 
     public:
         ~Gitty() override {}
