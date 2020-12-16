@@ -60,37 +60,34 @@ int main()
 
     auto screen = ScreenInteractive::Fullscreen();
 
-    Gitty gt(repo);
-    unstagedFiles, ignoredFiles = gt.update(repo);
-    Element gitty = gt.Render();
-
-    /* thread update([&screen] {
-        for (;;)
-        {
-            using namespace chrono_literals;
-            this_thread::sleep_for(0.05s);
-            screen.PostEvent(Event::Custom);
-        }
-    }); */
+    Gitty gt;
+    unstagedFiles, ignoredFiles, stagedFiles = gt.update(repo);
 
     screen.Loop(&gt);
 
     return EXIT_SUCCESS;
 }
 
+// CLI Component
 GitCommandLine::GitCommandLine()
 {
+    Add(&cli);
     commandinput.placeholder = L"add .";
     commandinput.on_enter = [this] {
-        command = commandinput.content;
+        commandinput.content = L"";
     };
+    cli.Add(&commandinput);
 }
 
 Element GitCommandLine::Render()
 {
-    return commandinput.Render();
+    return hbox({
+        text(L"git >>> "),
+        hbox(cli.Render()),
+    });
 }
 
+// StagedFiles Component
 StagedFiles::StagedFiles()
 {
     for (File &file : stagedFiles)
@@ -102,9 +99,11 @@ StagedFiles::StagedFiles()
 
 Element StagedFiles::Render()
 {
-    return vbox({window(text(L" Project "), vbox(move(elements)))});
+    return vbox({window(text(L" Project "),
+                        vbox(move(elements)))});
 }
 
+// FileTracker Component
 FileTracker::FileTracker()
 {
     Add(&container);
@@ -119,39 +118,83 @@ FileTracker::FileTracker()
 
 Element FileTracker::Render()
 {
-    return container.Render();
+    return vbox({window(
+        text(L"Untracked Files"),
+        vbox(container.Render()))});
 }
 
+// Gitty Wrapper
 vector<File> Gitty::update(repository repo)
 {
+    /* auto index = repo.index();
+    auto diff = repo.create_diff_index_to_workdir(index);
+
+    diff.for_each(
+        // File Callback
+        [&](const diff::delta &delta, float progress) {
+            File diff;
+            auto status = delta.status();
+            switch (status)
+            {
+            case diff::delta::type::added:
+                diff.path = delta.new_file().path();
+                diff.status = diff::delta::type::added;
+                stagedFiles.push_back(diff);
+                break;
+            case diff::delta::type::deleted:
+                std::cout << "Deleted " << delta.new_file().path() << std::endl;
+                break;
+            case diff::delta::type::modified:
+                std::cout << "Modified " << delta.new_file().path() << std::endl;
+                break;
+            case diff::delta::type::renamed:
+                std::cout << "Renamed " << delta.old_file().path() << " -> "
+                          << delta.new_file().path() << std::endl;
+                break;
+            case diff::delta::type::copied:
+                std::cout << "Copied " << delta.new_file().path() << std::endl;
+                break;
+            case diff::delta::type::untracked:
+                std::cout << "Untracked " << delta.new_file().path() << std::endl;
+                break;
+            default:
+                break;
+            }
+        }); */
     repo.for_each_status([&](const string &path, status::status_type status_flags) {
         if ((status_flags & status::status_type::index_modified) != status::status_type::index_modified)
         {
-            if ((status_flags & status::status_type::ignored) != status::status_type::ignored)
+            if ((status_flags & status::status_type::index_modified) == status::status_type::index_modified)
             {
                 File mod;
+                // mod.path = path;
                 mod.path = to_wstring(path);
                 mod.status = status::status_type::index_modified;
                 unstagedFiles.push_back(mod);
             }
-            else
+            else if ((status_flags & status::status_type::ignored) == status::status_type::ignored)
             {
                 File ign;
+                // ign.path = path;
                 ign.path = to_wstring(path);
                 ign.status = status::status_type::index_modified;
                 ignoredFiles.push_back(ign);
             }
+            else
+            {
+                File stg;
+                // stg.path = path;
+                stg.path = to_wstring(path);
+                stg.status = status::status_type::current;
+                stagedFiles.push_back(stg);
+            }
         }
     });
-
-    return unstagedFiles, ignoredFiles;
+    return unstagedFiles, ignoredFiles, stagedFiles;
 }
 
-Gitty::Gitty(repository repo)
+Gitty::Gitty()
 {
-
-    update(repo);
-
     Add(&main_container);
     main_container.Add(&ft);
     main_container.Add(&sf);
@@ -160,5 +203,8 @@ Gitty::Gitty(repository repo)
 
 Element Gitty::Render()
 {
-    return main_container.Render();
+    return vbox({
+        text(L"Gitty Git TUI") | bold | hcenter,
+        main_container.Render(),
+    });
 }

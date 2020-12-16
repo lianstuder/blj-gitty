@@ -20,7 +20,9 @@ namespace gitty
 
     public:
         std::wstring path;
-        cppgit2::status::status_type status;
+        // std::string path;
+        // cppgit2::status::status_type status;
+        status::status_type status;
     };
 
     class StagedFiles : public ftxui::Component
@@ -40,6 +42,7 @@ namespace gitty
     {
     private:
         ftxui::Container container = ftxui::Container::Vertical();
+        std::vector<ftxui::Element> elements;
         std::vector<gitty::File> unstagedFiles;
         std::vector<gitty::File> ignoredFiles;
 
@@ -52,8 +55,8 @@ namespace gitty
     class GitCommandLine : public ftxui::Component
     {
     private:
+        ftxui::Container cli = ftxui::Container::Horizontal();
         ftxui::Input commandinput;
-        std::wstring command;
 
     public:
         ~GitCommandLine() override {}
@@ -72,7 +75,7 @@ namespace gitty
 
     public:
         ~Gitty() override {}
-        Gitty(repository repo);
+        Gitty();
         ftxui::Element Render() override;
         std::vector<gitty::File> update(cppgit2::repository);
     };
