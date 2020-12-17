@@ -7,7 +7,7 @@
 #endif
 
 // cppgit2
-#include <cppgit2/repository.hpp>
+#include "cppgit2/repository.hpp"
 
 // FTXUI
 #include "ftxui/dom/elements.hpp"
@@ -26,7 +26,7 @@
 #include <stdexcept>
 
 // Custom
-#include <gitty/gitty.h>
+#include "./gitty.h"
 
 using namespace cppgit2;
 using namespace ftxui;

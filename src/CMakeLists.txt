@@ -1,9 +1,9 @@
 ADD_EXECUTABLE(${PROJECT_NAME} main.cpp)
 
-FIND_LIBRARY(CPPGIT2_LIBRARY cppgit2 HINTS ${PROJECT_SOURCE_DIR}/lib)
+find_library(CPPGIT2_LIBRARY cppgit2 HINTS ./build/lib)
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME}
-    ${CPPGIT2_LIBRARY}
+    cppgit2
     ftxui::dom
     ftxui::screen
     ftxui::component
