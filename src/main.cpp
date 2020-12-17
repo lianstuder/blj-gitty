@@ -71,10 +71,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-GitCommandLine::GitCommandLine()
-{
-    Add(&cli);
-}
+GitCommandLine::GitCommandLine() { Add(&cli); }
 
 Element GitCommandLine::Render()
 {
@@ -106,10 +103,7 @@ Element StagedFiles::Render()
                         vbox(move(elements)))});
 } */
 
-FileTracker::FileTracker()
-{
-    Add(&container);
-}
+FileTracker::FileTracker() { Add(&container); }
 
 Element FileTracker::Render()
 {
@@ -127,8 +121,8 @@ Element FileTracker::Render()
 
 Gitty::Gitty(vector<Component> &components)
 {
-    Add(&main_container);
     _components = components;
+    Add(&main_container);
 }
 
 Element Gitty::Render()
