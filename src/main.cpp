@@ -60,13 +60,13 @@ int main()
     FileTracker filetracker;
     components.push_back(filetracker);
 
-    GitCommandLine cli;
-    components.push_back(cli);
+    GitCommandLine commandline;
+    components.push_back(commandline);
 
     Gitty gt(components);
     unstagedFiles, ignoredFiles = gt.update(repo);
 
-    screen.Loop(&gt);
+    //screen.Loop(&gt);
 
     return EXIT_SUCCESS;
 }
@@ -83,9 +83,11 @@ Element GitCommandLine::Render()
         commandinput.content = L"";
     };
     cli.Add(&commandinput);
-    return hbox({text(L"git >>> "),
-                 hbox(cli.Render()),
-                 text(to_wstring(result))});
+    return hbox({
+        text(L"git >>> "),
+        hbox(cli.Render()),
+        text(to_wstring(result)),
+    });
 }
 
 // StagedFiles Component
@@ -123,24 +125,23 @@ Element FileTracker::Render()
         vbox(container.Render()))});
 }
 
-Gitty::Gitty(vector<Component> components)
+Gitty::Gitty(vector<Component> &components)
 {
     Add(&main_container);
-    for (Component &cp : components)
-    {
-        main_container.Add(&cp);
-    }
+    _components = components;
 }
 
 Element Gitty::Render()
 {
+    for (Component cp : _components)
+        main_container.Add(&cp);
+
     return vbox({
         text(L"Gitty Git TUI") | bold | hcenter,
         main_container.Render(),
     });
 }
 
-// Gitty Wrapper
 vector<File> Gitty::update(repository repo)
 {
     repo.for_each_status([&](const string &path, status::status_type status_flags) {

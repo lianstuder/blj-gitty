@@ -66,10 +66,11 @@ namespace gitty
     {
     private:
         ftxui::Container main_container = ftxui::Container::Vertical();
+        std::vector<ftxui::Component> _components;
 
     public:
         ~Gitty() override {}
-        Gitty(std::vector<ftxui::Component> components);
+        Gitty(std::vector<ftxui::Component> &components);
         ftxui::Element Render() override;
         std::vector<gitty::File> update(cppgit2::repository);
     };
