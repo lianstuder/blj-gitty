@@ -26,7 +26,7 @@
 #include <stdexcept>
 
 // Custom
-#include "./gitty.h"
+#include "./gitty.hpp"
 
 using namespace cppgit2;
 using namespace ftxui;
@@ -34,7 +34,7 @@ using namespace std;
 using namespace gitty;
 
 string cwd;
-vector<File> unstagedFiles;
+vector<File> trackedFiles;
 vector<File> ignoredFiles;
 // vector<File> stagedFiles;
 
@@ -49,7 +49,7 @@ int main()
     char buff[FILENAME_MAX];
     GetCurrentDir(buff, FILENAME_MAX);
     string cwd(buff);
-    // cout << "Current Working Directory " << cwd << endl;
+    cout << "Current Working Directory " << cwd << endl;
 
     repository repo = repository::init(cwd, false);
 
@@ -64,7 +64,13 @@ int main()
     components.push_back(commandline);
 
     Gitty gt(components);
-    unstagedFiles, ignoredFiles = gt.update(repo);
+    trackedFiles, ignoredFiles = gt.update(repo);
+
+    for (File &file : trackedFiles)
+        cout << "Unstaged: " << file.path << " " << file.status << endl;
+
+    for (File &file : ignoredFiles)
+        cout << "Ignored: " << file.path << endl;
 
     //screen.Loop(&gt);
 
@@ -107,7 +113,7 @@ FileTracker::FileTracker() { Add(&container); }
 
 Element FileTracker::Render()
 {
-    for (File &file : unstagedFiles)
+    for (File &file : trackedFiles)
     {
         CheckBox cb;
         cb.label = to_wstring(file.path);
@@ -127,7 +133,7 @@ Gitty::Gitty(vector<Component> &components)
 
 Element Gitty::Render()
 {
-    for (Component cp : _components)
+    for (Component &cp : _components)
         main_container.Add(&cp);
 
     return vbox({
@@ -136,30 +142,63 @@ Element Gitty::Render()
     });
 }
 
-vector<File> Gitty::update(repository repo)
+vector<File> Gitty::update(repository &repo)
 {
     repo.for_each_status([&](const string &path, status::status_type status_flags) {
+        File repoFile;
+        repoFile.path = path;
         if ((status_flags & status::status_type::index_modified) != status::status_type::index_modified)
         {
             if ((status_flags & status::status_type::ignored) !=
                 status::status_type::ignored)
             {
-                File mod;
-                mod.path = path;
-                // mod.path = to_wstring(path);
-                mod.status = status::status_type::index_modified;
-                unstagedFiles.push_back(mod);
+                repoFile.status = "modified";
+                trackedFiles.push_back(repoFile);
             }
             else
             {
-                File ign;
-                ign.path = path;
-                // ign.path = to_wstring(path);
-                ign.status = status::status_type::ignored;
-                ignoredFiles.push_back(ign);
+                repoFile.status = "ignored";
+                ignoredFiles.push_back(repoFile);
             }
         }
     });
 
-    return unstagedFiles, ignoredFiles;
+    for (File &file : trackedFiles)
+    {
+        cout << file.path << endl;
+    }
+
+    auto index = repo.index();
+    auto diff = repo.create_diff_index_to_workdir(index);
+    diff.for_each(
+        [&](const diff::delta &delta, float progress) {
+            auto status = delta.status();
+            for (File &file : trackedFiles)
+            {
+                /* cout << file.path << endl;
+                cout << delta.new_file().path() << endl; */
+                if (file.path == delta.new_file().path() || file.path == delta.old_file().path())
+                {
+                    switch (status) {
+                        case diff::delta::type::added:
+                            file.status = "added";
+                            break;
+                        case diff::delta::type::deleted:
+                            file.status = "deleted";
+                            break;
+                        case diff::delta::type::renamed:
+                            file.status = "renamed";
+                            break;
+                        case diff::delta::type::untracked:
+                            file.status = "untracked";
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    );
+
+    return trackedFiles, ignoredFiles;
 }
