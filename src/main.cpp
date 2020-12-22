@@ -33,16 +33,14 @@ using namespace ftxui;
 using namespace std;
 using namespace gitty;
 
-string cwd;
-vector<File> trackedFiles;
-vector<File> ignoredFiles;
-// vector<File> stagedFiles;
-
 /* TODO:
     - Basic refactoring
     - Split code across multiple files
     - Implement method to reload file-lists after rendering tui
+    - Extensibility
  */
+
+vector<File> updateFilelist(repository &repo);
 
 int main()
 {
@@ -51,99 +49,79 @@ int main()
     string cwd(buff);
     cout << "Current Working Directory " << cwd << endl;
 
-    repository repo = repository::init(cwd, false);
+    auto repo = repository::open(cwd);
 
     auto screen = ScreenInteractive::Fullscreen();
 
-    // Components
-    vector<Component> components;
-    FileTracker filetracker;
-    components.push_back(filetracker);
-
+    FileTracker filetracker(&repo);
     GitCommandLine commandline;
-    components.push_back(commandline);
 
-    Gitty gt(components);
-    trackedFiles, ignoredFiles = gt.update(repo);
+    Gitty gt(filetracker, commandline);
 
-    for (File &file : trackedFiles)
-        cout << "Unstaged: " << file.path << " " << file.status << endl;
-
-    for (File &file : ignoredFiles)
-        cout << "Ignored: " << file.path << endl;
-
-    //screen.Loop(&gt);
+    screen.Loop(&gt);
 
     return EXIT_SUCCESS;
 }
 
-GitCommandLine::GitCommandLine() { Add(&cli); }
+GitCommandLine::GitCommandLine(/* repository repo */) 
+{ 
+    Add(&container);
+}
 
 Element GitCommandLine::Render()
 {
-    commandinput.placeholder = L"add .";
-    commandinput.on_enter = [this] {
-        commandinput.content = L"";
+    inputbox.placeholder = L"add .";
+    inputbox.on_enter = [this] {
+        // Execute commands
+        inputbox.content = L"";
     };
-    cli.Add(&commandinput);
+    container.Add(&inputbox);
     return hbox({
         text(L"git >>> "),
-        hbox(cli.Render()),
-        text(to_wstring(result)),
+        hbox(container.Render())
     });
 }
 
-// StagedFiles Component
-/* StagedFiles::StagedFiles()
+FileTracker::FileTracker(repository *repo) 
 {
-    for (File &file : stagedFiles)
-    {
-
-        elements.push_back(text(to_wstring(file.path)) | style);
-    }
+    _repo = *repo;
+    Add(&container);
 }
-
-Element StagedFiles::Render()
-{
-    return vbox({window(text(L" Staged Files "),
-                        vbox(move(elements)))});
-} */
-
-FileTracker::FileTracker() { Add(&container); }
 
 Element FileTracker::Render()
 {
-    for (File &file : trackedFiles)
+    trackerFilelist = updateFilelist(_repo);
+    for (File &file : trackerFilelist)
     {
-        CheckBox cb;
-        cb.label = to_wstring(file.path);
-        cb.state = false;
-        container.Add(&cb);
+        files.push_back(text(to_wstring(file.path)));
+        //cout << file.path << endl;
     }
     return vbox({window(
         text(L" Untracked Files "),
-        vbox(container.Render()))});
+        vbox(move(files))
+        ),
+    });
 }
 
-Gitty::Gitty(vector<Component> &components)
+Gitty::Gitty(Component &filetracker, Component &cli)
 {
-    _components = components;
     Add(&main_container);
+    main_container.Add(&filetracker);
+    main_container.Add(&cli);
 }
 
 Element Gitty::Render()
 {
-    for (Component &cp : _components)
-        main_container.Add(&cp);
-
     return vbox({
         text(L"Gitty Git TUI") | bold | hcenter,
         main_container.Render(),
     });
 }
 
-vector<File> Gitty::update(repository &repo)
+vector<File> updateFilelist(repository &repo)
 {
+    vector<File> _trackedFiles;
+    vector<File> _ignoredFiles;
     repo.for_each_status([&](const string &path, status::status_type status_flags) {
         File repoFile;
         repoFile.path = path;
@@ -153,30 +131,23 @@ vector<File> Gitty::update(repository &repo)
                 status::status_type::ignored)
             {
                 repoFile.status = "modified";
-                trackedFiles.push_back(repoFile);
+                _trackedFiles.push_back(repoFile);
             }
             else
             {
                 repoFile.status = "ignored";
-                ignoredFiles.push_back(repoFile);
+                _ignoredFiles.push_back(repoFile);
             }
         }
     });
-
-    for (File &file : trackedFiles)
-    {
-        cout << file.path << endl;
-    }
 
     auto index = repo.index();
     auto diff = repo.create_diff_index_to_workdir(index);
     diff.for_each(
         [&](const diff::delta &delta, float progress) {
             auto status = delta.status();
-            for (File &file : trackedFiles)
+            for (File &file : _trackedFiles)
             {
-                /* cout << file.path << endl;
-                cout << delta.new_file().path() << endl; */
                 if (file.path == delta.new_file().path() || file.path == delta.old_file().path())
                 {
                     switch (status) {
@@ -200,5 +171,6 @@ vector<File> Gitty::update(repository &repo)
         }
     );
 
-    return trackedFiles, ignoredFiles;
+    return _trackedFiles;/* , _ignoredFiles; */
 }
+ 
