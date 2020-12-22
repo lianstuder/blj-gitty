@@ -2,4 +2,4 @@
 
 mkdir build
 cd build
-cmake .. && make
+cmake .. -DCMAKE_BUILD_TYPE=Debug && make
