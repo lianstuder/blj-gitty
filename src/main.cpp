@@ -38,9 +38,15 @@ using namespace gitty;
     - Split code across multiple files
     - Implement method to reload file-lists after rendering tui
     - Extensibility
+    - Vim Keybinds
+    - Commit files
+    - Reset tracker after staging files
+    - Git functionallity (not only tui functions)
  */
 
 vector<File> updateFilelist(repository &repo);
+
+int indexOf(vector<File>, File);
 
 int main()
 {
@@ -49,7 +55,7 @@ int main()
     string cwd(buff);
     cout << "Current Working Directory " << cwd << endl;
 
-    auto repo = repository::open(cwd);
+    repository repo = repository::open(cwd);
 
     auto screen = ScreenInteractive::Fullscreen();
 
@@ -84,22 +90,48 @@ Element GitCommandLine::Render()
 
 FileTracker::FileTracker(repository *repo) 
 {
-    _repo = *repo;
     Add(&container);
+    unstaged = updateFilelist(*repo);
+
+    unstagedBoxes.resize(unstaged.size());
+    for (int i=0; i < unstaged.size(); ++i)
+    {
+        unstagedBoxes.at(i).label = to_wstring(unstaged.at(i).path);
+        container.Add(&unstagedBoxes.at(i));
+    }
+
+    container.Add(&stageBtn);
+    stageBtn.label = L"Stage";
+    stageBtn.on_click = [&] {
+        for (int i=0; i < unstagedBoxes.size(); i++)
+        {
+            if (unstagedBoxes.at(i).state)
+                staged.push_back(unstaged.at(i));
+        }
+    };
 }
 
 Element FileTracker::Render()
 {
-    trackerFilelist = updateFilelist(_repo);
-    for (File &file : trackerFilelist)
-    {
-        files.push_back(text(to_wstring(file.path)));
-        //cout << file.path << endl;
-    }
-    return vbox({window(
-        text(L" Untracked Files "),
-        vbox(move(files))
+    Elements tracker;
+    for (auto &it : unstagedBoxes)
+        tracker.push_back(it.Render());
+    tracker.push_back(stageBtn.Render());
+
+    Elements commiter;
+    for (File &file : staged)
+        commiter.push_back(text(to_wstring(file.path)));
+
+    
+    return hbox({
+        window(
+            text(L" Unstaged Files "),
+            vbox(move(tracker))
         ),
+        window(
+            text(L" Staged Files "),
+            vbox(move(commiter))
+        )
     });
 }
 

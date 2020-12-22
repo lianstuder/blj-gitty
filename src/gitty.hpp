@@ -5,8 +5,8 @@
 
 #include "ftxui/dom/elements.hpp"
 #include "ftxui/screen/string.hpp"
-#include "ftxui/component/menu.hpp"
 #include "ftxui/component/checkbox.hpp"
+#include "ftxui/component/button.hpp"
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/container.hpp"
 
@@ -27,9 +27,11 @@ namespace gitty
     {
     private:
         ftxui::Container container = ftxui::Container::Vertical();
-        std::vector<gitty::File> trackerFilelist;
-        ftxui::Elements files;
-        cppgit2::repository _repo;
+        std::vector<ftxui::CheckBox> unstagedBoxes;
+        std::vector<gitty::File> unstaged;
+        std::vector<gitty::File> staged;
+
+        ftxui::Button stageBtn;
 
     public:
         ~FileTracker() override {}
