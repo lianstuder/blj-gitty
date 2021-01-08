@@ -83,13 +83,14 @@ Element GitCommandLine::Render()
     };
     container.Add(&inputbox);
     return hbox({
-        text(L"git >>> "),
+        text(L"gitty $ "),
         hbox(container.Render())
     });
 }
 
 FileTracker::FileTracker(repository *repo) 
 {
+    _repo = *repo;
     Add(&container);
     unstaged = updateFilelist(*repo);
 
@@ -103,10 +104,21 @@ FileTracker::FileTracker(repository *repo)
     container.Add(&stageBtn);
     stageBtn.label = L"Stage";
     stageBtn.on_click = [&] {
+        auto index = _repo.index();
         for (int i=0; i < unstagedBoxes.size(); i++)
         {
-            if (unstagedBoxes.at(i).state)
+            bool added = false;
+            for (auto &box : staged)
+            {
+                if (unstaged.at(i).path == box.path)
+                    added = true;
+            }
+            if (unstagedBoxes.at(i).state && !added)
+            {
                 staged.push_back(unstaged.at(i));
+                index.add_entry_by_path(staged.at(i).path);
+                index.write();
+            }
         }
     };
 }
@@ -146,7 +158,7 @@ Element Gitty::Render()
 {
     return vbox({
         text(L"Gitty Git TUI") | bold | hcenter,
-        main_container.Render(),
+        main_container.Render() | flex_grow,
     });
 }
 

@@ -27,6 +27,7 @@ namespace gitty
     {
     private:
         ftxui::Container container = ftxui::Container::Vertical();
+        cppgit2::repository _repo;
         std::vector<ftxui::CheckBox> unstagedBoxes;
         std::vector<gitty::File> unstaged;
         std::vector<gitty::File> staged;
