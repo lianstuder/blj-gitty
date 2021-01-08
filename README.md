@@ -8,35 +8,18 @@ All features and more information on Gitty are available in the [the docs](https
 
 ## Dependencies
 
-Gitty requires one dependency to be added manually if you want to build this project from source.
-It requires the [cppgit2](https://github.com/p-ranav/cppgit2) library to be built from source and manually added like this:
+Gitty uses a libgit2 wrapper called [cppgit2](https://github.com/p-ranav/cppgit2) and the [ftxui](https://github.com/ArthurSonzogni/FTXUI) TUI library.
+Both libaries are automatically downloaded and linked by CMake. 
 
-In the projects root dir create a folder called `build` and create the directories `include`, `lib`, `samples` and `test` inside the build folder.
+## Build from source
 
-Build the cppgit2 library and paste the following contents from the build directory that got created after building the library into the appropriate directory inside the build folder in your project.
+To build gitty from source, just run the `build.sh` script in the projects root directory or the following commands:
 
-```
-include/
-├── cppgit2/
-├── git2/
-└── git2.h
-lib/
-├── libcppgit2.so -> libcppgit2.so.1
-├── libcppgit2.so.0.1.0
-├── libcppgit2.so.1 -> libcppgit2.so.0.1.0
-├── libcppgit2.static.a
-├── libgit2_clar
-├── libgit2.pc
-├── libgit2.so -> libgit2.so.0
-├── libgit2.so.1.0.0
-├── libgit2.so.0 -> libgit2.so.1.0.0
-└── ...
-samples/
-test/
-```
-
-You can find more information on building the cppgit2 library in the [README](https://github.com/lianstuder/blj-gitty/blob/master/README.md) of its GitHub Repository.
+- `mkdir build`
+- `cd build`
+- `cmake ..`
+- `make`
 
 ## License
 
-This project is licensed under the [MIT License](https://github.com/lianstuder/blj-gitty/blob/master/LICENSE)
+This project is licensed under the [GNU LGPLv3](https://github.com/lianstuder/blj-gitty/blob/master/LICENSE)
