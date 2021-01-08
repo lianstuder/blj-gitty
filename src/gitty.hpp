@@ -28,11 +28,13 @@ namespace gitty
     private:
         ftxui::Container container = ftxui::Container::Vertical();
         cppgit2::repository _repo;
+        cppgit2::index index; 
         std::vector<ftxui::CheckBox> unstagedBoxes;
         std::vector<gitty::File> unstaged;
         std::vector<gitty::File> staged;
 
         ftxui::Button stageBtn;
+        ftxui::Button commitBtn;
 
     public:
         ~FileTracker() override {}
@@ -49,7 +51,7 @@ namespace gitty
 
     public:
         ~GitCommandLine() override {}
-        GitCommandLine(/* cppgit2::repository repo */);
+        GitCommandLine();
         ftxui::Element Render() override;
     };
 
@@ -64,3 +66,7 @@ namespace gitty
         ftxui::Element Render() override;
     };
 } // namespace gitty
+
+std::vector<gitty::File> updateFilelist(cppgit2::repository &repo);
+int indexOf(std::vector<gitty::File>, gitty::File);
+std::string exec(std::string command);
