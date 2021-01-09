@@ -4,22 +4,15 @@
 
 ![GitHub](https://img.shields.io/badge/OS-Linux%20%2F%20WSL-yellow)
 
-All features and more information on Gitty are available in the [the docs](https://github.com/lianstuder/gitty/blob/master/doc/README.md).
-
-## Dependencies
-
-Gitty uses a libgit2 wrapper called [cppgit2](https://github.com/p-ranav/cppgit2) and the [ftxui](https://github.com/ArthurSonzogni/FTXUI) TUI library.
-Both libaries are automatically downloaded and linked by CMake. 
+All features and more information on Gitty are available in the [the docs](https://github.com/lianstuder/gitty/blob/master/docs/README.md).
 
 ## Build from source
 
-To build gitty from source, just run the `build.sh` script in the projects root directory or the following commands:
+Since gitty is written in Crystal, you will need to have the Crystal compiler installed. For now, this makes gitty only available on Linux or in a WSL. You can learn more on WSL [here]().
+To install Crystal, go to [the Crystal website](https://crystal-lang.org/install) and follow the instructions there.
 
-- `mkdir build`
-- `cd build`
-- `cmake ..`
-- `make`
+If you installed the Crystal compiler, you can run `make build && make install` in the downloaded folder to build and install gitty. That's everything you need to do!
 
 ## License
 
-This project is licensed under the [GNU LGPLv3](https://github.com/lianstuder/blj-gitty/blob/master/LICENSE)
+This project is licensed under the [GNU GPLv3](https://github.com/lianstuder/gitty/blob/master/LICENSE)
