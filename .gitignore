@@ -4,3 +4,9 @@
 # BLJ Docs
 admin
 
+# Crystal
+shard.lock
+lib/
+
+# Executable
+./gitty
