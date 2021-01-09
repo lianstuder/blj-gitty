@@ -38,15 +38,11 @@ using namespace gitty;
     - Split code across multiple files
     - Implement method to reload file-lists after rendering tui
     - Extensibility
-    - Vim Keybinds
     - Commit files
     - Reset tracker after staging files
     - Git functionallity (not only tui functions)
  */
 
-vector<File> updateFilelist(repository &repo);
-
-int indexOf(vector<File>, File);
 
 int main()
 {
@@ -56,6 +52,8 @@ int main()
     cout << "Current Working Directory " << cwd << endl;
 
     repository repo = repository::open(cwd);
+
+    //cout << typeid(repo.index()).name() << endl;
 
     auto screen = ScreenInteractive::Fullscreen();
 
@@ -69,7 +67,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-GitCommandLine::GitCommandLine(/* repository repo */) 
+GitCommandLine::GitCommandLine() 
 { 
     Add(&container);
 }
@@ -78,8 +76,8 @@ Element GitCommandLine::Render()
 {
     inputbox.placeholder = L"add .";
     inputbox.on_enter = [this] {
-        // Execute commands
-        inputbox.content = L"";
+        string result = exec(to_string(inputbox.content));
+        inputbox.content = to_wstring(result);
     };
     container.Add(&inputbox);
     return hbox({
@@ -105,20 +103,46 @@ FileTracker::FileTracker(repository *repo)
     stageBtn.label = L"Stage";
     stageBtn.on_click = [&] {
         auto index = _repo.index();
-        for (int i=0; i < unstagedBoxes.size(); i++)
+        for (int i = 0; i < unstaged.size(); i++)
         {
             bool added = false;
-            for (auto &box : staged)
+            for (auto &stagedItem : staged)
             {
-                if (unstaged.at(i).path == box.path)
+                if (unstaged.at(i).path == stagedItem.path)
                     added = true;
             }
+
             if (unstagedBoxes.at(i).state && !added)
             {
+                vector<File>::iterator it = unstaged.begin() + i;
                 staged.push_back(unstaged.at(i));
+                unstaged.erase(it);
                 index.add_entry_by_path(staged.at(i).path);
                 index.write();
             }
+        }
+    };
+
+    container.Add(&commitBtn);
+    commitBtn.label = L"Commit";
+    commitBtn.on_click = [&] {
+        try
+        {
+            auto index = _repo.index();
+            auto author = signature("lianstuder", "lianstuder12@gmail.com");
+            auto tree_oid = index.write_tree();
+            _repo.create_commit(
+                "HEAD", 
+                author,
+                author,
+                "utf-8",
+                "test commit",
+                _repo.lookup_tree(tree_oid), {}
+            );
+        }
+        catch(const cppgit2::git_exception& e)
+        {
+            std::cerr << e.what() << '\n';
         }
     };
 }
@@ -133,8 +157,8 @@ Element FileTracker::Render()
     Elements commiter;
     for (File &file : staged)
         commiter.push_back(text(to_wstring(file.path)));
+    commiter.push_back(commitBtn.Render());
 
-    
     return hbox({
         window(
             text(L" Unstaged Files "),
@@ -215,6 +239,23 @@ vector<File> updateFilelist(repository &repo)
         }
     );
 
-    return _trackedFiles;/* , _ignoredFiles; */
+    return _trackedFiles;
 }
  
+string exec(string command) {
+   char buffer[128];
+   string result = "";
+
+   FILE* pipe = popen(command.c_str(), "r");
+   if (!pipe) {
+      return "popen failed!";
+   }
+
+   while (!feof(pipe)) {
+      if (fgets(buffer, 128, pipe) != NULL)
+         result += buffer;
+   }
+
+   pclose(pipe);
+   return result;
+}

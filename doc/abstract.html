@@ -23,6 +23,7 @@
    
 		<section>
 			<h3>Kurzinfo</h3>
+			Gitty ist ein TUI zur vereinfachung der Versionskontrolle mit Git.
 			
 			<h4>Themenbereich</h4>
 			<p>Softwareentwicklung</p>
@@ -45,33 +46,41 @@
 			<p>
 			<!-- Beschreibung der Aufgabenstellung/des Problembereichs. 
 				 Was war die Ausgangslage? Was war das Ziel? -->
-				 Fuer die Versionskontrolle von Projekten gibt es viele verschiedene Tools und Programme, wie zum Beispiel Git oder Mercurial.
-				 Diese sind sowohl als GUI (Graphical User Interface = Graphische Benutzeroberflaeche) 
-				 sowie als CLI (Command Line Interface = Befehlszeilenanwendung) verfuegbar.
-				 Das Ziel von Gitty ist es, die Uebersichtlichkeit eines GUIs mit der simplizitaet von CLIs zu verbinden.  
+				 Für die Versionskontrolle von Projekten gibt es viele verschiedene Tools und Programme, wie zum Beispiel Git oder Mercurial.
+				 Diese sind sowohl als GUI (Graphical User Interface = Graphische Benutzeroberfläche) 
+				 sowie als CLI (Command Line Interface = Befehlszeilenanwendung) verfügbar.
+				 Das Ziel von Gitty ist es, die Übersichtlichkeit eines GUIs mit der simplizität von CLIs zu verbinden.  
 			</p>
 			<h2>Ergebnisse</h2>
 			<p>
 			<!-- Erklären/Beschreiben was erreicht worden ist.   
 				  Welche Ergebnisse wurden erzielt? Welches sind die wichtigsten realisierten Funktionen? -->
 				  Aufgrund von Problemen wahrend dem Entwicklungsprozess, konnten einige grundlegende Features leider noch nicht implementiert werden.
-				  Folgende Funktionen sind in der aktuellen Version verfuegbar: Git-Konsole, "git add", "git commit" und die Navigation mit der Tastatur.
+				  Folgende Funktionen sind in der aktuellen Version verfügbar: Git-Konsole, "git add", "git commit" und die Navigation mit der Tastatur.
 			</p>	  
 			<h2>Lösungskonzept</h2>
 			<p>
 			<!-- Erklären/Beschreiben wie die Ergebnisse erreicht wurden.   
 				  Wie wurde vorgegangen? Wie wurde die Lösung aufgebaut? Aus welchen Einzelteilen/Komponenten besteht die Lösung? etc. -->
-				  Der Mix aus GUI und CLI wird als TUI (Text User Interface) bezeichnet
+				  Der Mix aus GUI und CLI wird als TUI (Text User Interface) bezeichnet. Ich habe in C++ mit der Git-API und einer 
+				  TUI Library ein TUI mit verschieden Bedienelementen gebaut. Die Interaktion mit diesen Bedienelementen gibt die entsprechenden Aktionen an die 
+				  Git-API weiter. 
 			</p>	 
 			<h2>Aufgetretene Probleme</h2>
 			<p>
 			<!-- Beschreiben, welche Probleme/Schwierigkeiten aufgetreten sind.   
-				  Was lief nicht wie geplant? Wo wurde Zeit verloren? Was konnte aufgrund welcher Schwierigkeiten nicht realisiert werden? -->		
+				  Was lief nicht wie geplant? Wo wurde Zeit verloren? Was konnte aufgrund welcher Schwierigkeiten nicht realisiert werden? -->	 Wo wurde Zeit verloren? Was konnte aufgrund welcher Schwierigkeiten nicht realisiert werden? -->	
+				  Da ich zum ersten Mal C++ verwendet habe, hatte ich mehrere Probleme, wie zum Beispiel "segmentation faults", also Probleme mit Speicherzugriff
+				  oder auch mit dem OOP-Konzept von C++. Ich habe deswegen viel Zeit mit der Fehlerbehebung verbracht und konnte relativ wenig an den eigentlichen Funktionen
+				  meiner Software arbeiten. Gitty kann (Stand 8. Jan 2021) bietet nur die Funktionen von "git add" und "git commit", wobei andere Funktionen von Git über die
+				  eingebaute Git-Konsole verwendet werden können. 	
 			</p>
 			<h2>Ausblick</h2>
 			<p>
 			<!-- Beschreiben, welche Probleme/Schwierigkeiten aufgetreten sind.   
-				  Was lief nicht wie geplant? Wo wurde Zeit verloren? Was konnte aufgrund welcher Schwierigkeiten nicht realisiert werden? -->		
+				  Was lief nicht wie geplant? Wo wurde Zeit verloren? Was konnte aufgrund welcher Schwierigkeiten nicht realisiert werden? -->
+				  Gitty wird in Zukunft noch weiter an Funktionalität gewinnen und stetig erweitert werden, solange mir das Projekt noch spass macht.
+				  Ich konnte alle aufgetretenen Probleme selber lösen und werde auch in Zukunft versuchen, dieses Projekt selbstständig weiterzuentwickeln.		
 			</p>
 		</section>
 	</main>
