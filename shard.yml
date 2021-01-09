@@ -13,5 +13,5 @@ dependencies:
   ncurses:
     github: agatan/ncurses.cr
 
-license: GNU GPLv3
+license: GPLv3
   
