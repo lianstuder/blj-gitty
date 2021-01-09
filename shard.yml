@@ -1,0 +1,17 @@
+name: Gitty
+version: 1.0.0
+
+authors:
+  - Lian Studer <ln.studer@protonmail.ch>
+
+description: |
+  Git version control TUI
+
+dependencies:
+  git:
+    github: smacker/libgit2.cr
+  ncurses:
+    github: agatan/ncurses.cr
+
+license: GNU GPLv3
+  
