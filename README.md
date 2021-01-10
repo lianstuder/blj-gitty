@@ -3,7 +3,7 @@
 <!-- Badges -->
 
 ![GitHub](https://img.shields.io/badge/OS-Linux%20%2F%20WSL-yellow)
-[![Build Status](https://www.travis-ci.com/lianstuder/gitty.svg?branch=master)](https://www.travis-ci.com/lianstuder/gitty)
+[![Build Status](https://www.travis-ci.com/lianstuder/gitty.svg?branch=opt2_ncurses_lib)](https://www.travis-ci.com/lianstuder/gitty)
 
 All features and more information on Gitty are available in the [the docs](https://github.com/lianstuder/gitty/blob/master/docs/README.md).
 
