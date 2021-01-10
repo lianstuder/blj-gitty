@@ -13,17 +13,3 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-# Dependencies
-require "git"
-require "ncurses"
-
-# External files
-require "./gitty/display"
-require "./gitty/git"
-
-VERSION = "1.0.0"
-
-CWD = ENV.fetch("PWD")
-repo = Git::Repo.open(CWD)
-
