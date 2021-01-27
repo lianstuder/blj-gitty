@@ -7,6 +7,8 @@
 
 All features and more information on Gitty are available in the [the docs](https://github.com/lianstuder/gitty/blob/master/docs/README.md).
 
+I paused developing this project for a while, since I am reorienting my self technologically and I started out with a completely wrong approach to develop this. I will plan this out a bit better and then I will start developing again, if I planned this properly.
+
 ## Build from source
 
 Since gitty is written in Crystal, you will need to have the Crystal compiler installed. For now, this makes gitty only available on Linux or in a WSL. You can learn more on WSL [here](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
