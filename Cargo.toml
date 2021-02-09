@@ -10,3 +10,6 @@ edition = "2018"
 tui = "0.14"
 termion = "1.5"
 git2 = "0.13"
+
+[features]
+default = ["termion"]
